@@ -2134,6 +2134,37 @@ body {
     font-weight: 500;
 }
 
+/* Sailing Footer (contains comfort and track link) */
+.sailing-footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.track-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--accent-teal);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(78, 205, 196, 0.1);
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+    width: fit-content;
+}
+
+.track-link:hover {
+    background: rgba(78, 205, 196, 0.2);
+    color: var(--text-primary);
+}
+
+.track-link svg {
+    flex-shrink: 0;
+}
+
 /* ============================================
    Crossing Comparison Section
    ============================================ */

@@ -99,9 +99,9 @@ const CROSSING_THRESHOLDS = {
 
 // ============================================
 // Ferry Schedule Data
-// NOTE: These schedules are approximations based on publicly available
-// information. For accurate, up-to-date schedules, please check:
-// - Interislander: interislander.co.nz/plan/ferry-timetable
+// Summer timetable (Nov 2025 - Apr 2026)
+// For live tracking and booking:
+// - Interislander: interislander.co.nz/plan/arrivals-and-departures
 // - Bluebridge: bluebridge.co.nz/timetable
 // Schedules change seasonally and can be affected by weather/maintenance.
 // ============================================
@@ -110,7 +110,8 @@ const FERRY_SCHEDULES = {
     interislander: {
         name: 'Interislander',
         vessels: ['Kaitaki', 'Kaiarahi'],
-        // Updated schedule after Aratere retirement (Aug 2025)
+        trackingUrl: 'https://www.interislander.co.nz/experience/track-your-interislander-ferry-journey',
+        // Schedule after Aratere retirement (Aug 2025)
         wellingtonToPicton: [
             { depart: '08:45', arrive: '12:15', vessel: 'Kaitaki' },
             { depart: '15:30', arrive: '19:00', vessel: 'Kaiarahi' },
@@ -124,21 +125,25 @@ const FERRY_SCHEDULES = {
     },
     bluebridge: {
         name: 'Bluebridge',
-        vessels: ['Straitsman', 'Connemara'],
+        vessels: ['Livia', 'Connemara'],
+        trackingUrl: 'https://www.bluebridge.co.nz/the-trip',
+        // Summer timetable: Valid 1 Nov 2025 - 30 Apr 2026
         wellingtonToPicton: [
-            { depart: '02:30', arrive: '06:00', vessel: 'Straitsman' },
-            { depart: '08:00', arrive: '11:30', vessel: 'Connemara' },
-            { depart: '13:30', arrive: '17:00', vessel: 'Straitsman' },
-            { depart: '18:30', arrive: '22:00', vessel: 'Connemara' }
+            { depart: '02:00', arrive: '05:45', vessel: 'Livia', notOn: [6] }, // Not Saturdays
+            { depart: '08:15', arrive: '11:45', vessel: 'Connemara' },
+            { depart: '13:30', arrive: '17:15', vessel: 'Livia' },
+            { depart: '20:30', arrive: '00:00', vessel: 'Connemara', notOn: [6] } // Not Saturdays
         ],
         pictonToWellington: [
-            { depart: '02:30', arrive: '06:00', vessel: 'Connemara' },
-            { depart: '08:00', arrive: '11:30', vessel: 'Straitsman' },
-            { depart: '13:30', arrive: '17:00', vessel: 'Connemara' },
-            { depart: '21:30', arrive: '01:00', vessel: 'Straitsman' }
+            { depart: '02:30', arrive: '06:00', vessel: 'Connemara', notOn: [0] }, // Not Sundays
+            { depart: '07:45', arrive: '11:30', vessel: 'Livia', notOn: [6] }, // Not Saturdays
+            { depart: '14:00', arrive: '17:30', vessel: 'Connemara' },
+            { depart: '19:15', arrive: '23:00', vessel: 'Livia' }
         ]
     }
 };
+
+// Day of week: 0=Sunday, 1=Monday, ..., 6=Saturday
 
 // Comfort score descriptions
 const COMFORT_DESCRIPTIONS = {
@@ -624,6 +629,12 @@ class FerryScheduleManager {
                     departTime.setDate(departTime.getDate() + 1);
                 }
 
+                // Check day-of-week restrictions (notOn: array of day numbers, 0=Sun, 6=Sat)
+                const dayOfWeek = departTime.getDay();
+                if (sailing.notOn && sailing.notOn.includes(dayOfWeek)) {
+                    continue; // Skip this sailing - doesn't run on this day
+                }
+
                 const [arriveHour, arriveMin] = sailing.arrive.split(':').map(Number);
                 const arriveTime = new Date(departTime);
                 arriveTime.setHours(arriveHour, arriveMin, 0, 0);
@@ -655,7 +666,8 @@ class FerryScheduleManager {
                     comfortScore,
                     comfortDesc: ComfortScoreCalculator.getDescription(comfortScore),
                     comfortClass: ComfortScoreCalculator.getColorClass(comfortScore),
-                    direction
+                    direction,
+                    trackingUrl: operator.trackingUrl
                 });
             }
         }
@@ -1341,13 +1353,24 @@ class UIController {
                     </div>
                 </div>
 
-                <div class="sailing-comfort">
-                    <div class="comfort-meter">
-                        ${[1,2,3,4,5].map(i => `
-                            <div class="comfort-dot ${i <= sailing.comfortScore ? 'filled' : ''} ${sailing.comfortClass}"></div>
-                        `).join('')}
+                <div class="sailing-footer">
+                    <div class="sailing-comfort">
+                        <div class="comfort-meter">
+                            ${[1,2,3,4,5].map(i => `
+                                <div class="comfort-dot ${i <= sailing.comfortScore ? 'filled' : ''} ${sailing.comfortClass}"></div>
+                            `).join('')}
+                        </div>
+                        <span class="comfort-text">${sailing.comfortDesc}</span>
                     </div>
-                    <span class="comfort-text">${sailing.comfortDesc}</span>
+                    ${sailing.trackingUrl ? `
+                        <a href="${sailing.trackingUrl}" target="_blank" rel="noopener" class="track-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            Track Live
+                        </a>
+                    ` : ''}
                 </div>
             </div>
         `}).join('');
