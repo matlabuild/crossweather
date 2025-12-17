@@ -984,7 +984,29 @@ class UIController {
             sailingsGrid: document.getElementById('sailingsGrid'),
             comparisonChart: document.getElementById('comparisonChart'),
             bestTimeText: document.getElementById('bestTimeText'),
-            bestTimeReason: document.getElementById('bestTimeReason')
+            bestTimeReason: document.getElementById('bestTimeReason'),
+            // Hero section elements
+            statusBadge: document.getElementById('statusBadge'),
+            statusSummary: document.getElementById('statusSummary'),
+            heroWind: document.getElementById('heroWind'),
+            heroWindDir: document.getElementById('heroWindDir'),
+            heroWaves: document.getElementById('heroWaves'),
+            heroSwellPeriod: document.getElementById('heroSwellPeriod'),
+            heroTemp: document.getElementById('heroTemp'),
+            heroCondition: document.getElementById('heroCondition'),
+            heroFeelsLike: document.getElementById('heroFeelsLike'),
+            heroComfortDots: document.getElementById('heroComfortDots'),
+            heroComfortScore: document.getElementById('heroComfortScore'),
+            heroComfortDesc: document.getElementById('heroComfortDesc'),
+            // Next sailing card
+            nextSailingCard: document.getElementById('nextSailingCard'),
+            nextCountdown: document.getElementById('nextCountdown'),
+            nextOperator: document.getElementById('nextOperator'),
+            nextVessel: document.getElementById('nextVessel'),
+            nextDepartTime: document.getElementById('nextDepartTime'),
+            nextBookBtn: document.getElementById('nextBookBtn'),
+            // Recommendation
+            recommendationText: document.getElementById('recommendationText')
         };
     }
 
@@ -1225,6 +1247,144 @@ class UIController {
         if (this.elements.crossingStatus) {
             this.elements.crossingStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
         }
+
+        // Update hero status badge
+        if (this.elements.statusBadge) {
+            this.elements.statusBadge.className = `status-badge ${config.class}`;
+            const label = this.elements.statusBadge.querySelector('.status-label');
+            if (label) {
+                const heroLabels = {
+                    good: 'Good Conditions',
+                    moderate: 'Moderate Conditions',
+                    poor: 'Rough Conditions'
+                };
+                label.textContent = heroLabels[status];
+            }
+        }
+        if (this.elements.statusSummary) {
+            const summaries = {
+                good: 'Smooth sailing expected for all crossings today',
+                moderate: 'Some swells expected - take precautions if prone to seasickness',
+                poor: 'Rough seas - check with ferry operators for service updates'
+            };
+            this.elements.statusSummary.textContent = summaries[status];
+        }
+    }
+
+    // Update hero quick metrics
+    updateHeroMetrics(data) {
+        if (this.elements.heroWind) {
+            this.elements.heroWind.textContent = data.windSpeed;
+        }
+        if (this.elements.heroWindDir) {
+            this.elements.heroWindDir.textContent = data.windDirection;
+        }
+        if (this.elements.heroWaves) {
+            this.elements.heroWaves.textContent = data.waveHeight.toFixed(1);
+        }
+        if (this.elements.heroSwellPeriod) {
+            this.elements.heroSwellPeriod.textContent = `${Math.round(data.swellPeriod || 8)}s period`;
+        }
+        if (this.elements.heroTemp) {
+            this.elements.heroTemp.textContent = `${data.temperature}°`;
+        }
+        if (this.elements.heroCondition) {
+            this.elements.heroCondition.textContent = data.description;
+        }
+        if (this.elements.heroFeelsLike) {
+            this.elements.heroFeelsLike.textContent = `Feels ${data.feelsLike}°`;
+        }
+    }
+
+    // Update hero comfort display
+    updateHeroComfort(score, desc) {
+        if (this.elements.heroComfortDots) {
+            const colorClass = score >= 4 ? '' : score >= 3 ? 'moderate' : 'poor';
+            this.elements.heroComfortDots.className = `comfort-dots ${colorClass}`;
+            this.elements.heroComfortDots.innerHTML = [1,2,3,4,5].map(i =>
+                `<span class="dot ${i <= score ? 'filled' : ''}"></span>`
+            ).join('');
+        }
+        if (this.elements.heroComfortScore) {
+            this.elements.heroComfortScore.textContent = `${score}/5`;
+        }
+        if (this.elements.heroComfortDesc) {
+            this.elements.heroComfortDesc.textContent = desc;
+        }
+    }
+
+    // Update next sailing card
+    updateNextSailing(sailing) {
+        if (!sailing || !this.elements.nextSailingCard) return;
+
+        // Update operator badge
+        if (this.elements.nextOperator) {
+            const badge = this.elements.nextOperator.querySelector('.operator-badge');
+            const name = this.elements.nextOperator.querySelector('.operator-name');
+            if (badge) {
+                badge.className = `operator-badge ${sailing.operator}`;
+                badge.textContent = sailing.operator === 'interislander' ? 'IS' : 'BB';
+            }
+            if (name) {
+                name.textContent = sailing.operatorName;
+            }
+        }
+        if (this.elements.nextVessel) {
+            this.elements.nextVessel.textContent = sailing.vessel;
+        }
+        if (this.elements.nextDepartTime) {
+            this.elements.nextDepartTime.textContent = sailing.departTimeStr;
+        }
+        if (this.elements.nextBookBtn && sailing.bookingUrl) {
+            this.elements.nextBookBtn.href = sailing.bookingUrl;
+        }
+
+        // Start countdown
+        this.updateCountdown(sailing.departTime);
+    }
+
+    // Update countdown timer
+    updateCountdown(departTime) {
+        const update = () => {
+            const now = new Date();
+            const diff = departTime - now;
+
+            if (diff <= 0) {
+                if (this.elements.nextCountdown) {
+                    this.elements.nextCountdown.textContent = 'Departed';
+                }
+                return;
+            }
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            if (this.elements.nextCountdown) {
+                if (hours > 0) {
+                    this.elements.nextCountdown.textContent = `${hours}h ${minutes}m`;
+                } else {
+                    this.elements.nextCountdown.textContent = `${minutes}m`;
+                }
+            }
+        };
+
+        update();
+        // Update every minute
+        if (this.countdownInterval) clearInterval(this.countdownInterval);
+        this.countdownInterval = setInterval(update, 60000);
+    }
+
+    // Update smart recommendation
+    updateRecommendation(bestSailing) {
+        if (!bestSailing || !this.elements.recommendationText) return;
+
+        const timeStr = bestSailing.departTime.toLocaleTimeString('en-NZ', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+
+        this.elements.recommendationText.innerHTML = `Best crossing today: <strong>${timeStr}</strong> (calmest conditions forecast)`;
     }
 
     updateHourlyForecast(forecast) {
@@ -1944,8 +2104,26 @@ class CrossWeatherApp {
             const comfortDesc = ComfortScoreCalculator.getDescription(comfortScore);
             this.uiController.updateComfortScore(comfortScore, comfortDesc);
 
+            // Update hero section
+            this.uiController.updateHeroMetrics(data.current);
+            this.uiController.updateHeroComfort(comfortScore, comfortDesc);
+
             // Update ferry schedule manager with hourly and daily forecasts
             this.ferryManager.updateForecast(data.hourly, data.daily);
+
+            // Get sailings and update next sailing card
+            const sailings = this.ferryManager.getAllSailings(this.currentDirection, 0);
+            const nextSailing = sailings.find(s => !s.departed);
+            if (nextSailing) {
+                this.uiController.updateNextSailing(nextSailing);
+            }
+
+            // Find best sailing for recommendation
+            const bestSailing = sailings.filter(s => !s.departed)
+                .sort((a, b) => b.comfortScore - a.comfortScore)[0];
+            if (bestSailing) {
+                this.uiController.updateRecommendation(bestSailing);
+            }
 
             // Update sailings display
             this.updateSailingsDisplay();

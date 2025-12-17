@@ -433,10 +433,305 @@ body {
 .hero-subtitle {
     font-size: 1.2rem;
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-2xl);
+    margin-bottom: var(--spacing-xl);
     animation: fadeInUp 0.8s ease;
     animation-delay: 0.4s;
     animation-fill-mode: both;
+}
+
+/* Crossing Status - The Key Information */
+.crossing-status {
+    margin-bottom: var(--spacing-xl);
+    animation: fadeInUp 0.8s ease;
+    animation-delay: 0.5s;
+    animation-fill-mode: both;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius-xl);
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--spacing-sm);
+}
+
+.status-badge.good {
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.2), rgba(46, 213, 115, 0.1));
+    border: 2px solid var(--status-good);
+    color: var(--status-good);
+}
+
+.status-badge.moderate {
+    background: linear-gradient(135deg, rgba(254, 202, 87, 0.2), rgba(254, 202, 87, 0.1));
+    border: 2px solid var(--status-moderate);
+    color: var(--status-moderate);
+}
+
+.status-badge.poor {
+    background: linear-gradient(135deg, rgba(255, 107, 129, 0.2), rgba(255, 107, 129, 0.1));
+    border: 2px solid var(--status-poor);
+    color: var(--status-poor);
+}
+
+.status-pulse {
+    width: 12px;
+    height: 12px;
+    background: currentColor;
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+}
+
+.status-summary {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+/* Quick Metrics Grid */
+.quick-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+    max-width: 600px;
+    margin: 0 auto var(--spacing-xl);
+    animation: fadeInUp 0.8s ease;
+    animation-delay: 0.6s;
+    animation-fill-mode: both;
+}
+
+.metric-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    text-align: center;
+    transition: var(--transition-fast);
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-teal);
+}
+
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-teal);
+    margin-top: var(--spacing-xs);
+}
+
+.metric-detail {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.comfort-card .metric-value {
+    display: flex;
+    justify-content: center;
+}
+
+.comfort-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.comfort-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: var(--transition-fast);
+}
+
+.comfort-dots .dot.filled {
+    background: var(--status-good);
+}
+
+.comfort-dots.moderate .dot.filled {
+    background: var(--status-moderate);
+}
+
+.comfort-dots.poor .dot.filled {
+    background: var(--status-poor);
+}
+
+/* Next Sailing Card */
+.next-sailing-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    max-width: 500px;
+    margin: 0 auto var(--spacing-lg);
+    overflow: hidden;
+    animation: fadeInUp 0.8s ease;
+    animation-delay: 0.7s;
+    animation-fill-mode: both;
+}
+
+.next-sailing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.next-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+}
+
+.countdown {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent-teal);
+    font-family: var(--font-mono);
+}
+
+.next-sailing-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-lg);
+    gap: var(--spacing-md);
+}
+
+.next-operator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.operator-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.operator-badge.interislander {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.operator-badge.bluebridge {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.operator-details {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.operator-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.vessel-name {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.next-route {
+    text-align: center;
+}
+
+.route-time {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    display: block;
+}
+
+.route-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.next-book-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: linear-gradient(135deg, var(--accent-teal), #3dbdb5);
+    color: var(--ocean-dark);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+}
+
+.next-book-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+}
+
+/* Smart Recommendation */
+.smart-recommendation {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: rgba(254, 202, 87, 0.1);
+    border: 1px solid rgba(254, 202, 87, 0.3);
+    border-radius: var(--radius-xl);
+    color: var(--accent-gold);
+    font-size: 0.9rem;
+    animation: fadeInUp 0.8s ease;
+    animation-delay: 0.8s;
+    animation-fill-mode: both;
+}
+
+.smart-recommendation strong {
+    color: var(--text-primary);
+}
+
+/* Alerts Banner */
+.alerts-banner {
+    background: linear-gradient(135deg, rgba(255, 107, 129, 0.2), rgba(255, 107, 129, 0.1));
+    border-bottom: 1px solid rgba(255, 107, 129, 0.3);
+    padding: var(--spacing-md) 0;
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--status-poor);
+    font-weight: 500;
 }
 
 /* Main Weather Display */
@@ -1700,6 +1995,42 @@ body {
 
     .hero-title {
         font-size: clamp(2rem, 10vw, 3.5rem);
+    }
+
+    .quick-metrics {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 100%;
+    }
+
+    .status-badge {
+        font-size: 1.1rem;
+        padding: var(--spacing-sm) var(--spacing-lg);
+    }
+
+    .next-sailing-body {
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .next-operator {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .next-route {
+        width: 100%;
+    }
+
+    .next-book-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .smart-recommendation {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--spacing-md);
     }
 
     .details-grid {
