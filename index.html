@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cook Strait Ferry Weather | Cross Weather</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Animated Background Elements -->
+    <div class="background-effects">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+        <div class="birds">
+            <div class="bird bird-1"></div>
+            <div class="bird bird-2"></div>
+            <div class="bird bird-3"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 35C5 35 15 30 25 30C35 30 45 35 45 35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M10 32V20L25 10L40 20V32" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M25 10V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="25" cy="3" r="2" fill="currentColor"/>
+                </svg>
+                <span class="logo-text">CrossWeather</span>
+            </div>
+            <nav class="nav">
+                <a href="#current" class="nav-link active">Current</a>
+                <a href="#forecast" class="nav-link">Forecast</a>
+                <a href="#route" class="nav-link">Route</a>
+                <a href="#alerts" class="nav-link">Alerts</a>
+            </nav>
+            <div class="last-updated">
+                <span class="update-dot"></span>
+                <span id="lastUpdated">Updated just now</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="current">
+        <div class="hero-content">
+            <div class="location-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                </svg>
+                Cook Strait, New Zealand
+            </div>
+            <h1 class="hero-title">Ferry Crossing<br>Weather</h1>
+            <p class="hero-subtitle">Real-time conditions for Wellington ↔ Picton</p>
+
+            <!-- Main Weather Display -->
+            <div class="main-weather">
+                <div class="weather-icon-container" id="weatherIconContainer">
+                    <div class="weather-icon partly-cloudy">
+                        <div class="sun">
+                            <div class="sun-rays"></div>
+                        </div>
+                        <div class="cloud-main"></div>
+                    </div>
+                </div>
+                <div class="weather-info">
+                    <div class="temperature">
+                        <span class="temp-value" id="temperature">18</span>
+                        <span class="temp-unit">°C</span>
+                    </div>
+                    <div class="weather-condition" id="condition">Partly Cloudy</div>
+                    <div class="feels-like">Feels like <span id="feelsLike">16</span>°C</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Animated Waves -->
+        <div class="waves-container">
+            <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/>
+                        <stop offset="100%" style="stop-color:rgba(255,255,255,0.1)"/>
+                    </linearGradient>
+                </defs>
+                <path class="wave wave-1" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"/>
+                <path class="wave wave-2" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"/>
+                <path class="wave wave-3" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Crossing Status Banner -->
+    <section class="status-banner" id="statusBanner">
+        <div class="status-content">
+            <div class="status-indicator good">
+                <span class="status-dot"></span>
+                <span class="status-text">Good Crossing Conditions</span>
+            </div>
+            <p class="status-detail">Moderate seas expected. Standard crossing time of 3 hours 20 minutes.</p>
+        </div>
+    </section>
+
+    <!-- Weather Details Grid -->
+    <section class="weather-details">
+        <div class="container">
+            <h2 class="section-title">Current Conditions</h2>
+            <div class="details-grid">
+                <!-- Wind Card -->
+                <div class="detail-card wind-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+                            </svg>
+                        </div>
+                        <span class="card-label">Wind</span>
+                    </div>
+                    <div class="card-value">
+                        <span id="windSpeed">25</span>
+                        <span class="unit">km/h</span>
+                    </div>
+                    <div class="card-detail">
+                        <div class="wind-direction" id="windCompass">
+                            <div class="compass">
+                                <div class="compass-arrow" id="windArrow"></div>
+                                <span class="compass-label">NW</span>
+                            </div>
+                        </div>
+                        <span class="direction-text" id="windDirection">North-westerly</span>
+                    </div>
+                    <div class="card-extra">
+                        Gusts up to <span id="windGusts">35</span> km/h
+                    </div>
+                </div>
+
+                <!-- Wave Height Card -->
+                <div class="detail-card wave-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M2 12c1.5-1.5 3-3 6-3s4.5 1.5 6 3c1.5 1.5 3 3 6 3s4.5-1.5 6-3"/>
+                                <path d="M2 6c1.5-1.5 3-3 6-3s4.5 1.5 6 3c1.5 1.5 3 3 6 3s4.5-1.5 6-3"/>
+                                <path d="M2 18c1.5-1.5 3-3 6-3s4.5 1.5 6 3c1.5 1.5 3 3 6 3s4.5-1.5 6-3"/>
+                            </svg>
+                        </div>
+                        <span class="card-label">Wave Height</span>
+                    </div>
+                    <div class="card-value">
+                        <span id="waveHeight">1.5</span>
+                        <span class="unit">m</span>
+                    </div>
+                    <div class="wave-animation">
+                        <div class="mini-wave"></div>
+                        <div class="mini-wave"></div>
+                        <div class="mini-wave"></div>
+                    </div>
+                    <div class="card-extra">
+                        Swell period: <span id="swellPeriod">8</span>s
+                    </div>
+                </div>
+
+                <!-- Visibility Card -->
+                <div class="detail-card visibility-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </div>
+                        <span class="card-label">Visibility</span>
+                    </div>
+                    <div class="card-value">
+                        <span id="visibility">15</span>
+                        <span class="unit">km</span>
+                    </div>
+                    <div class="visibility-bar">
+                        <div class="visibility-fill" id="visibilityBar"></div>
+                        <div class="visibility-markers">
+                            <span>Poor</span>
+                            <span>Moderate</span>
+                            <span>Good</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sea Temperature Card -->
+                <div class="detail-card sea-temp-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+                            </svg>
+                        </div>
+                        <span class="card-label">Sea Temperature</span>
+                    </div>
+                    <div class="card-value">
+                        <span id="seaTemp">14</span>
+                        <span class="unit">°C</span>
+                    </div>
+                    <div class="temp-indicator">
+                        <div class="temp-bar">
+                            <div class="temp-fill" id="seaTempBar"></div>
+                        </div>
+                        <span class="temp-label">Cool</span>
+                    </div>
+                </div>
+
+                <!-- Humidity Card -->
+                <div class="detail-card humidity-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                            </svg>
+                        </div>
+                        <span class="card-label">Humidity</span>
+                    </div>
+                    <div class="card-value">
+                        <span id="humidity">72</span>
+                        <span class="unit">%</span>
+                    </div>
+                    <div class="humidity-drops">
+                        <div class="drop drop-1"></div>
+                        <div class="drop drop-2"></div>
+                        <div class="drop drop-3"></div>
+                    </div>
+                </div>
+
+                <!-- Barometric Pressure Card -->
+                <div class="detail-card pressure-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                        </div>
+                        <span class="card-label">Pressure</span>
+                    </div>
+                    <div class="card-value">
+                        <span id="pressure">1018</span>
+                        <span class="unit">hPa</span>
+                    </div>
+                    <div class="pressure-trend">
+                        <svg class="trend-arrow rising" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 15l-6-6-6 6"/>
+                        </svg>
+                        <span id="pressureTrend">Rising</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ferry Route Map -->
+    <section class="route-section" id="route">
+        <div class="container">
+            <h2 class="section-title">Crossing Route</h2>
+            <div class="route-map">
+                <div class="map-container">
+                    <!-- SVG Map of Cook Strait -->
+                    <svg class="strait-map" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Water Background -->
+                        <rect width="400" height="500" fill="url(#oceanGradient)"/>
+
+                        <!-- Ocean Pattern -->
+                        <pattern id="wavePattern" x="0" y="0" width="60" height="10" patternUnits="userSpaceOnUse">
+                            <path d="M0 5 Q15 0 30 5 Q45 10 60 5" stroke="rgba(255,255,255,0.1)" fill="none" stroke-width="1"/>
+                        </pattern>
+                        <rect width="400" height="500" fill="url(#wavePattern)" class="wave-pattern"/>
+
+                        <defs>
+                            <linearGradient id="oceanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#1a5f7a"/>
+                                <stop offset="100%" style="stop-color:#0c3547"/>
+                            </linearGradient>
+                            <linearGradient id="landGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#2d5a3d"/>
+                                <stop offset="100%" style="stop-color:#1e3d29"/>
+                            </linearGradient>
+                            <filter id="landShadow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.3)"/>
+                            </filter>
+                        </defs>
+
+                        <!-- North Island (bottom portion) -->
+                        <path class="land north-island" d="M0 0 L150 0 L180 40 L200 35 L250 50 L280 45 L320 70 L350 65 L400 90 L400 0 L0 0 Z M0 0 L0 120 L40 100 L80 110 L120 95 L150 105 L180 90 L200 100 L180 40 L150 0" fill="url(#landGradient)" filter="url(#landShadow)"/>
+
+                        <!-- South Island (top portion) -->
+                        <path class="land south-island" d="M0 500 L0 380 L50 400 L100 385 L150 405 L200 390 L250 410 L300 395 L350 420 L400 400 L400 500 L0 500" fill="url(#landGradient)" filter="url(#landShadow)"/>
+
+                        <!-- Ferry Route -->
+                        <path class="ferry-route" d="M180 95 Q200 200 220 250 Q240 300 200 405" stroke="rgba(255,255,255,0.6)" stroke-width="3" stroke-dasharray="10,5" fill="none"/>
+
+                        <!-- Animated Ferry -->
+                        <g class="ferry-icon" id="ferryIcon">
+                            <ellipse cx="0" cy="0" rx="15" ry="8" fill="#fff"/>
+                            <rect x="-8" y="-12" width="16" height="8" rx="2" fill="#fff"/>
+                            <rect x="-4" y="-18" width="2" height="8" fill="#fff"/>
+                        </g>
+
+                        <!-- Wellington Marker -->
+                        <g class="port-marker wellington" transform="translate(180, 95)">
+                            <circle r="12" fill="#fff" opacity="0.2" class="pulse-ring"/>
+                            <circle r="8" fill="#ff6b6b"/>
+                            <circle r="4" fill="#fff"/>
+                        </g>
+
+                        <!-- Picton Marker -->
+                        <g class="port-marker picton" transform="translate(200, 405)">
+                            <circle r="12" fill="#fff" opacity="0.2" class="pulse-ring"/>
+                            <circle r="8" fill="#4ecdc4"/>
+                            <circle r="4" fill="#fff"/>
+                        </g>
+
+                        <!-- Labels -->
+                        <text x="180" y="70" fill="#fff" font-size="14" font-weight="600" text-anchor="middle">Wellington</text>
+                        <text x="200" y="440" fill="#fff" font-size="14" font-weight="600" text-anchor="middle">Picton</text>
+                        <text x="280" y="250" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Cook Strait</text>
+                        <text x="70" y="50" fill="rgba(255,255,255,0.8)" font-size="11" text-anchor="middle">North Island</text>
+                        <text x="320" y="460" fill="rgba(255,255,255,0.8)" font-size="11" text-anchor="middle">South Island</text>
+                    </svg>
+                </div>
+
+                <!-- Route Info Panel -->
+                <div class="route-info">
+                    <div class="route-stat">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22V8M5 12l7-7 7 7"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">92 km</span>
+                            <span class="stat-label">Distance</span>
+                        </div>
+                    </div>
+                    <div class="route-stat">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">3h 20m</span>
+                            <span class="stat-label">Crossing Time</span>
+                        </div>
+                    </div>
+                    <div class="route-stat">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">22 m</span>
+                            <span class="stat-label">Max Depth</span>
+                        </div>
+                    </div>
+                    <div class="route-stat highlight">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <path d="M22 4L12 14.01l-3-3"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="crossingStatus">Favorable</span>
+                            <span class="stat-label">Conditions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hourly Forecast -->
+    <section class="forecast-section" id="forecast">
+        <div class="container">
+            <h2 class="section-title">Hourly Forecast</h2>
+            <div class="hourly-forecast" id="hourlyForecast">
+                <!-- Hourly items will be inserted by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 5-Day Forecast -->
+    <section class="extended-forecast">
+        <div class="container">
+            <h2 class="section-title">5-Day Outlook</h2>
+            <div class="daily-forecast" id="dailyForecast">
+                <!-- Daily items will be inserted by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Alerts Section -->
+    <section class="alerts-section" id="alerts">
+        <div class="container">
+            <h2 class="section-title">Maritime Alerts</h2>
+            <div class="alerts-container" id="alertsContainer">
+                <!-- Alerts will be inserted by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Tide Information -->
+    <section class="tides-section">
+        <div class="container">
+            <h2 class="section-title">Tide Times</h2>
+            <div class="tides-container">
+                <div class="tide-chart">
+                    <svg class="tide-graph" viewBox="0 0 400 150" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="tideGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:rgba(78, 205, 196, 0.4)"/>
+                                <stop offset="100%" style="stop-color:rgba(78, 205, 196, 0)"/>
+                            </linearGradient>
+                        </defs>
+                        <path class="tide-area" d="M0,100 Q50,30 100,60 Q150,90 200,40 Q250,70 300,50 Q350,80 400,45 L400,150 L0,150 Z" fill="url(#tideGradient)"/>
+                        <path class="tide-line" d="M0,100 Q50,30 100,60 Q150,90 200,40 Q250,70 300,50 Q350,80 400,45" stroke="#4ecdc4" stroke-width="3" fill="none"/>
+                        <!-- Current time indicator -->
+                        <line class="current-time-line" x1="160" y1="0" x2="160" y2="150" stroke="rgba(255,255,255,0.5)" stroke-width="1" stroke-dasharray="5,5"/>
+                        <circle class="current-time-dot" cx="160" cy="75" r="5" fill="#fff"/>
+                    </svg>
+                    <div class="tide-labels">
+                        <span>00:00</span>
+                        <span>06:00</span>
+                        <span>12:00</span>
+                        <span>18:00</span>
+                        <span>24:00</span>
+                    </div>
+                </div>
+                <div class="tide-times">
+                    <div class="tide-event high">
+                        <div class="tide-type">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            High Tide
+                        </div>
+                        <div class="tide-time" id="highTide1">05:42</div>
+                        <div class="tide-height">1.8m</div>
+                    </div>
+                    <div class="tide-event low">
+                        <div class="tide-type">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                            Low Tide
+                        </div>
+                        <div class="tide-time" id="lowTide1">11:58</div>
+                        <div class="tide-height">0.4m</div>
+                    </div>
+                    <div class="tide-event high">
+                        <div class="tide-type">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            High Tide
+                        </div>
+                        <div class="tide-time" id="highTide2">18:15</div>
+                        <div class="tide-height">1.7m</div>
+                    </div>
+                    <div class="tide-event low">
+                        <div class="tide-type">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                            Low Tide
+                        </div>
+                        <div class="tide-time" id="lowTide2">00:23</div>
+                        <div class="tide-height">0.5m</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <svg class="footer-logo" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 35C5 35 15 30 25 30C35 30 45 35 45 35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M10 32V20L25 10L40 20V32" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M25 10V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="25" cy="3" r="2" fill="currentColor"/>
+                    </svg>
+                    <span>CrossWeather</span>
+                </div>
+                <p class="footer-text">Real-time ferry crossing weather for Cook Strait, New Zealand</p>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">About</a>
+                    <a href="#" class="footer-link">Data Sources</a>
+                    <a href="#" class="footer-link">API</a>
+                    <a href="#" class="footer-link">Contact</a>
+                </div>
+                <p class="copyright">© 2024 CrossWeather. Weather data for informational purposes only.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Animated Sea Floor -->
+    <div class="sea-floor">
+        <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+            <path d="M0,50 Q360,0 720,50 Q1080,100 1440,50 L1440,100 L0,100 Z" fill="rgba(10,30,50,0.5)"/>
+        </svg>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
