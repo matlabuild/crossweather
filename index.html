@@ -647,6 +647,18 @@
         </div>
     </section>
 
+    <!-- Weather Sources Section -->
+    <section class="weather-sources-section" id="sources">
+        <div class="container">
+            <h2 class="section-title">Weather Data Sources</h2>
+            <p class="section-subtitle">Multi-model forecast comparison for accuracy</p>
+            <div class="weather-sources-grid" id="weatherSourcesGrid">
+                <!-- Weather sources and model comparison will be inserted by JavaScript -->
+                <div class="source-loading">Loading weather models...</div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -662,12 +674,11 @@
                 </div>
                 <p class="footer-text">Real-time ferry crossing weather for Cook Strait, New Zealand</p>
                 <div class="footer-links">
-                    <a href="#" class="footer-link">About</a>
-                    <a href="#" class="footer-link">Data Sources</a>
-                    <a href="#" class="footer-link">API</a>
-                    <a href="#" class="footer-link">Contact</a>
+                    <a href="#sources" class="footer-link">Data Sources</a>
+                    <a href="https://open-meteo.com" target="_blank" rel="noopener" class="footer-link">Open-Meteo API</a>
+                    <a href="https://www.metservice.com/marine" target="_blank" rel="noopener" class="footer-link">MetService</a>
                 </div>
-                <p class="copyright">© 2024 CrossWeather. Weather data for informational purposes only.</p>
+                <p class="copyright">© 2024 CrossWeather. Weather data for informational purposes only. Always check with ferry operators for official conditions.</p>
             </div>
         </div>
     </footer>

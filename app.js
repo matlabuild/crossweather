@@ -111,6 +111,9 @@ const FERRY_SCHEDULES = {
         name: 'Interislander',
         vessels: ['Kaitaki', 'Kaiarahi'],
         trackingUrl: 'https://www.interislander.co.nz/experience/track-your-interislander-ferry-journey',
+        // Booking URL with query params - format: YYYY-MM-DD, route codes WLG/PCN
+        bookingBaseUrl: 'https://booking.interislander.co.nz/Booking/Booking-Search.aspx',
+        bookingParams: (date, from, to) => `?OutboundDate=${date}&From=${from === 'Wellington' ? 'WLG' : 'PCN'}&To=${to === 'Wellington' ? 'WLG' : 'PCN'}&Adults=1`,
         // Schedule after Aratere retirement (Aug 2025)
         wellingtonToPicton: [
             { depart: '08:45', arrive: '12:15', vessel: 'Kaitaki' },
@@ -127,6 +130,9 @@ const FERRY_SCHEDULES = {
         name: 'Bluebridge',
         vessels: ['Livia', 'Connemara'],
         trackingUrl: 'https://www.bluebridge.co.nz/the-trip',
+        // Bluebridge booking - they use a simpler URL structure
+        bookingBaseUrl: 'https://book.bluebridge.co.nz/',
+        bookingParams: (date, from, to) => `?departure=${date}&route=${from.toLowerCase()}-${to.toLowerCase()}`,
         // Summer timetable: Valid 1 Nov 2025 - 30 Apr 2026
         wellingtonToPicton: [
             { depart: '02:00', arrive: '05:45', vessel: 'Livia', notOn: [6] }, // Not Saturdays
@@ -202,6 +208,79 @@ class WeatherAPI {
             marine: null,
             lastFetch: null
         };
+        // Multiple weather model endpoints for comparison
+        this.modelEndpoints = {
+            'Best Match': 'https://api.open-meteo.com/v1/forecast',           // Auto-selects best model
+            'ECMWF': 'https://api.open-meteo.com/v1/ecmwf',                   // European model
+            'GFS': 'https://api.open-meteo.com/v1/gfs',                       // US model (NOAA)
+            'MeteoFrance': 'https://api.open-meteo.com/v1/meteofrance'        // French model
+        };
+        this.modelData = {};
+        this.modelConfidence = null;
+    }
+
+    // Fetch weather from a specific model endpoint
+    async fetchFromModel(modelName, endpoint) {
+        const { lat, lon } = CONFIG.coordinates.wellington;
+        const params = new URLSearchParams({
+            latitude: lat,
+            longitude: lon,
+            current: ['temperature_2m', 'wind_speed_10m', 'wind_gusts_10m'].join(','),
+            timezone: 'Pacific/Auckland'
+        });
+
+        try {
+            const response = await fetch(`${endpoint}?${params}`);
+            if (response.ok) {
+                const data = await response.json();
+                return {
+                    model: modelName,
+                    temperature: Math.round(data.current.temperature_2m),
+                    windSpeed: Math.round(data.current.wind_speed_10m),
+                    windGusts: Math.round(data.current.wind_gusts_10m),
+                    success: true
+                };
+            }
+        } catch (e) {
+            console.warn(`Failed to fetch from ${modelName}:`, e.message);
+        }
+        return { model: modelName, success: false };
+    }
+
+    // Fetch from all models and calculate confidence
+    async fetchMultiModelComparison() {
+        const results = await Promise.all(
+            Object.entries(this.modelEndpoints).map(([name, endpoint]) =>
+                this.fetchFromModel(name, endpoint)
+            )
+        );
+
+        const successful = results.filter(r => r.success);
+        this.modelData = successful;
+
+        if (successful.length >= 2) {
+            // Calculate agreement/confidence
+            const winds = successful.map(m => m.windSpeed);
+            const temps = successful.map(m => m.temperature);
+
+            const windRange = Math.max(...winds) - Math.min(...winds);
+            const tempRange = Math.max(...temps) - Math.min(...temps);
+
+            // High confidence if models agree within 5 km/h wind and 2°C temp
+            let confidence = 'High';
+            if (windRange > 10 || tempRange > 4) confidence = 'Low';
+            else if (windRange > 5 || tempRange > 2) confidence = 'Medium';
+
+            this.modelConfidence = {
+                level: confidence,
+                modelCount: successful.length,
+                windRange,
+                tempRange,
+                models: successful
+            };
+        }
+
+        return this.modelConfidence;
     }
 
     // Fetch current weather and forecast from Open-Meteo
@@ -314,9 +393,10 @@ class WeatherAPI {
         try {
             console.log('Fetching live weather data from Open-Meteo...');
 
-            const [weatherData, marineData] = await Promise.all([
+            const [weatherData, marineData, modelComparison] = await Promise.all([
                 this.fetchWeatherData(),
-                this.fetchMarineData()
+                this.fetchMarineData(),
+                this.fetchMultiModelComparison()
             ]);
 
             // Try to get sea temperature separately (may not always be available)
@@ -330,7 +410,11 @@ class WeatherAPI {
             };
 
             console.log('Weather data fetched successfully');
-            return this.processData(weatherData, marineData, seaTemp);
+            console.log(`Model comparison: ${modelComparison?.modelCount || 0} models, confidence: ${modelComparison?.level || 'N/A'}`);
+
+            const processed = this.processData(weatherData, marineData, seaTemp);
+            processed.modelComparison = modelComparison;
+            return processed;
         } catch (error) {
             console.error('Error fetching weather data:', error);
             throw error;
@@ -653,6 +737,14 @@ class FerryScheduleManager {
                 // Determine if sailing has departed (only matters for today)
                 const departed = dayOffset === 0 && departTime < now;
 
+                // Generate booking URL with pre-filled date
+                const dateStr = departTime.toISOString().split('T')[0]; // YYYY-MM-DD
+                const fromPort = direction === 'wellingtonToPicton' ? 'Wellington' : 'Picton';
+                const toPort = direction === 'wellingtonToPicton' ? 'Picton' : 'Wellington';
+                const bookingUrl = operator.bookingBaseUrl && operator.bookingParams
+                    ? operator.bookingBaseUrl + operator.bookingParams(dateStr, fromPort, toPort)
+                    : null;
+
                 sailings.push({
                     operator: operatorId,
                     operatorName: operator.name,
@@ -667,7 +759,8 @@ class FerryScheduleManager {
                     comfortDesc: ComfortScoreCalculator.getDescription(comfortScore),
                     comfortClass: ComfortScoreCalculator.getColorClass(comfortScore),
                     direction,
-                    trackingUrl: operator.trackingUrl
+                    trackingUrl: operator.trackingUrl,
+                    bookingUrl
                 });
             }
         }
@@ -1362,15 +1455,28 @@ class UIController {
                         </div>
                         <span class="comfort-text">${sailing.comfortDesc}</span>
                     </div>
-                    ${sailing.trackingUrl ? `
-                        <a href="${sailing.trackingUrl}" target="_blank" rel="noopener" class="track-link">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
-                            </svg>
-                            Track Live
-                        </a>
-                    ` : ''}
+                    <div class="sailing-actions">
+                        ${sailing.trackingUrl ? `
+                            <a href="${sailing.trackingUrl}" target="_blank" rel="noopener" class="track-link">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                Track
+                            </a>
+                        ` : ''}
+                        ${sailing.bookingUrl ? `
+                            <a href="${sailing.bookingUrl}" target="_blank" rel="noopener" class="book-link">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Book
+                            </a>
+                        ` : ''}
+                    </div>
                 </div>
             </div>
         `}).join('');
@@ -1646,6 +1752,59 @@ class UIController {
 
         mapContainer.appendChild(windGroup);
     }
+
+    // Update weather sources display with multi-model comparison
+    updateWeatherSources(modelComparison) {
+        const container = document.getElementById('weatherSourcesGrid');
+        if (!container || !modelComparison) return;
+
+        const confidenceColors = {
+            'High': 'var(--status-good)',
+            'Medium': 'var(--status-moderate)',
+            'Low': 'var(--status-poor)'
+        };
+
+        const confidenceDescriptions = {
+            'High': 'Models in strong agreement',
+            'Medium': 'Some variation between models',
+            'Low': 'Significant model disagreement'
+        };
+
+        // Build model comparison cards
+        const modelsHtml = modelComparison.models.map(model => `
+            <div class="source-model">
+                <div class="model-name">${model.model}</div>
+                <div class="model-values">
+                    <span class="model-temp">${model.temperature}°C</span>
+                    <span class="model-wind">${model.windSpeed} km/h</span>
+                </div>
+            </div>
+        `).join('');
+
+        container.innerHTML = `
+            <div class="confidence-indicator" style="border-color: ${confidenceColors[modelComparison.level]}">
+                <div class="confidence-badge" style="background: ${confidenceColors[modelComparison.level]}">
+                    ${modelComparison.level} Confidence
+                </div>
+                <div class="confidence-detail">
+                    ${confidenceDescriptions[modelComparison.level]}
+                </div>
+                <div class="confidence-stats">
+                    <span>Wind variance: ±${Math.round(modelComparison.windRange / 2)} km/h</span>
+                    <span>Temp variance: ±${(modelComparison.tempRange / 2).toFixed(1)}°C</span>
+                </div>
+            </div>
+            <div class="source-models">
+                <div class="models-title">Data from ${modelComparison.modelCount} weather models:</div>
+                ${modelsHtml}
+            </div>
+            <div class="source-links">
+                <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo API</a>
+                <a href="https://www.metservice.com/marine/regions/cook-strait" target="_blank" rel="noopener">MetService Marine</a>
+                <a href="https://www.linz.govt.nz/guidance/marine/tides-and-nautical-charts" target="_blank" rel="noopener">LINZ Tides</a>
+            </div>
+        `;
+    }
 }
 
 // ============================================
@@ -1804,6 +1963,11 @@ class CrossWeatherApp {
 
             // Update wind indicator on map
             this.uiController.updateWindIndicator(data.current.windSpeed, data.current.windDirection);
+
+            // Update weather sources display with multi-model comparison
+            if (data.modelComparison) {
+                this.uiController.updateWeatherSources(data.modelComparison);
+            }
 
             this.lastUpdate = Date.now();
             this.retryCount = 0;
