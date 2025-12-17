@@ -169,11 +169,11 @@
         </div>
     </section>
 
-    <!-- Live Webcams Section -->
+    <!-- Live Wind Maps Section -->
     <section class="webcams-section" id="webcams">
         <div class="container">
-            <h2 class="section-title">Live Harbour Views</h2>
-            <p class="section-subtitle">See current conditions at both terminals via Windy.com</p>
+            <h2 class="section-title">Live Wind Conditions</h2>
+            <p class="section-subtitle">Real-time wind at Wellington, mid-strait, and Picton</p>
             <div class="webcams-grid">
                 <div class="webcam-card">
                     <div class="webcam-header">
@@ -191,15 +191,42 @@
                     </div>
                     <div class="webcam-frame" id="webcamWellington">
                         <iframe
-                            src="https://embed.windy.com/embed.html?type=webcam&id=1338293657&zoom=14&overlay=wind&menu=&message=true&marker=&calendar=&pressure=&type=webcam&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+                            src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=-41.286&lon=174.776&message=true"
                             frameborder="0"
                             allowfullscreen
-                            title="Wellington Harbour Webcam"
+                            title="Wellington Harbour Weather"
                             loading="lazy">
                         </iframe>
                     </div>
                     <div class="webcam-info">
-                        <span>Powered by <a href="https://www.windy.com" target="_blank" rel="noopener">Windy.com</a></span>
+                        <span>Powered by <a href="https://www.windy.com/-Wellington-harbour?-41.286,174.776,11" target="_blank" rel="noopener">Windy.com</a></span>
+                    </div>
+                </div>
+                <div class="webcam-card">
+                    <div class="webcam-header">
+                        <div class="webcam-location">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            Cook Strait
+                        </div>
+                        <span class="webcam-live-badge">
+                            <span class="live-dot"></span>
+                            LIVE
+                        </span>
+                    </div>
+                    <div class="webcam-frame" id="webcamStrait">
+                        <iframe
+                            src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=9&overlay=wind&product=ecmwf&level=surface&lat=-41.22&lon=174.40&message=true"
+                            frameborder="0"
+                            allowfullscreen
+                            title="Cook Strait Weather"
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                    <div class="webcam-info">
+                        <span>Powered by <a href="https://www.windy.com/-Cook-Strait?-41.22,174.40,9" target="_blank" rel="noopener">Windy.com</a></span>
                     </div>
                 </div>
                 <div class="webcam-card">
@@ -218,19 +245,19 @@
                     </div>
                     <div class="webcam-frame" id="webcamPicton">
                         <iframe
-                            src="https://embed.windy.com/embed.html?type=webcam&id=1436320835&zoom=14&overlay=wind&menu=&message=true&marker=&calendar=&pressure=&type=webcam&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+                            src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=-41.290&lon=174.001&message=true"
                             frameborder="0"
                             allowfullscreen
-                            title="Picton Harbour Webcam"
+                            title="Picton Harbour Weather"
                             loading="lazy">
                         </iframe>
                     </div>
                     <div class="webcam-info">
-                        <span>Powered by <a href="https://www.windy.com" target="_blank" rel="noopener">Windy.com</a></span>
+                        <span>Powered by <a href="https://www.windy.com/-Picton-harbour?-41.290,174.001,11" target="_blank" rel="noopener">Windy.com</a></span>
                     </div>
                 </div>
             </div>
-            <p class="webcam-disclaimer">Webcam feeds provided by Windy.com. If unavailable, check <a href="https://www.gw.govt.nz/environment/harbours-and-coasts/wellington-harbour-entrance-webcams-and-radio/" target="_blank" rel="noopener">Greater Wellington Regional Council</a> for Wellington or <a href="https://www.windy.com/webcams/1436320835" target="_blank" rel="noopener">Windy.com</a> for Picton.</p>
+            <p class="webcam-disclaimer">Live wind maps powered by Windy.com (ECMWF model). For harbour webcams, check <a href="https://www.gw.govt.nz/environment/harbours-and-coasts/wellington-harbour-entrance-webcams-and-radio/" target="_blank" rel="noopener">Greater Wellington Regional Council</a> for Wellington.</p>
         </div>
     </section>
 
