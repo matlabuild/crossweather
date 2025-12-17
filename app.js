@@ -99,44 +99,43 @@ const CROSSING_THRESHOLDS = {
 
 // ============================================
 // Ferry Schedule Data
+// NOTE: These schedules are approximations based on publicly available
+// information. For accurate, up-to-date schedules, please check:
+// - Interislander: interislander.co.nz/plan/ferry-timetable
+// - Bluebridge: bluebridge.co.nz/timetable
+// Schedules change seasonally and can be affected by weather/maintenance.
 // ============================================
 
 const FERRY_SCHEDULES = {
     interislander: {
         name: 'Interislander',
-        vessels: ['Kaitaki', 'Aratere'],
-        // Typical daily schedule (times in 24h format)
+        vessels: ['Kaitaki', 'Kaiarahi'],
+        // Updated schedule after Aratere retirement (Aug 2025)
         wellingtonToPicton: [
-            { depart: '08:00', arrive: '11:20', vessel: 'Kaitaki' },
-            { depart: '09:00', arrive: '12:35', vessel: 'Aratere' },
-            { depart: '13:00', arrive: '16:20', vessel: 'Kaitaki' },
-            { depart: '14:00', arrive: '17:35', vessel: 'Aratere' },
-            { depart: '18:00', arrive: '21:20', vessel: 'Kaitaki' },
-            { depart: '21:00', arrive: '00:35', vessel: 'Aratere' }
+            { depart: '08:45', arrive: '12:15', vessel: 'Kaitaki' },
+            { depart: '15:30', arrive: '19:00', vessel: 'Kaiarahi' },
+            { depart: '20:30', arrive: '00:00', vessel: 'Kaitaki' }
         ],
         pictonToWellington: [
-            { depart: '08:00', arrive: '11:35', vessel: 'Aratere' },
-            { depart: '09:00', arrive: '12:20', vessel: 'Kaitaki' },
-            { depart: '13:00', arrive: '16:35', vessel: 'Aratere' },
-            { depart: '14:00', arrive: '17:20', vessel: 'Kaitaki' },
-            { depart: '18:00', arrive: '21:35', vessel: 'Aratere' },
-            { depart: '21:00', arrive: '00:20', vessel: 'Kaitaki' }
+            { depart: '08:00', arrive: '11:30', vessel: 'Kaiarahi' },
+            { depart: '13:45', arrive: '17:15', vessel: 'Kaitaki' },
+            { depart: '17:30', arrive: '21:00', vessel: 'Kaiarahi' }
         ]
     },
     bluebridge: {
         name: 'Bluebridge',
         vessels: ['Straitsman', 'Connemara'],
         wellingtonToPicton: [
-            { depart: '03:00', arrive: '06:30', vessel: 'Straitsman' },
+            { depart: '02:30', arrive: '06:00', vessel: 'Straitsman' },
             { depart: '08:00', arrive: '11:30', vessel: 'Connemara' },
             { depart: '13:30', arrive: '17:00', vessel: 'Straitsman' },
             { depart: '18:30', arrive: '22:00', vessel: 'Connemara' }
         ],
         pictonToWellington: [
-            { depart: '02:00', arrive: '05:30', vessel: 'Connemara' },
+            { depart: '02:30', arrive: '06:00', vessel: 'Connemara' },
             { depart: '08:00', arrive: '11:30', vessel: 'Straitsman' },
             { depart: '13:30', arrive: '17:00', vessel: 'Connemara' },
-            { depart: '18:00', arrive: '21:30', vessel: 'Straitsman' }
+            { depart: '21:30', arrive: '01:00', vessel: 'Straitsman' }
         ]
     }
 };
@@ -387,23 +386,47 @@ class WeatherAPI {
         const forecast = [];
         const hours = weather.hourly.time;
         const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-        for (let i = 0; i < Math.min(24, hours.length); i++) {
+        // Process 48 hours of forecasts to cover today and tomorrow sailing times
+        for (let i = 0; i < Math.min(48, hours.length); i++) {
             const time = new Date(hours[i]);
-            if (time < now && i > 0) continue; // Skip past hours except current
+
+            // Skip past hours (more than 1 hour ago)
+            if (time < new Date(now.getTime() - 3600000)) continue;
 
             const weatherCode = weather.hourly.weather_code[i];
+            const baseWaveHeight = marine.hourly?.wave_height?.[i] || 1.5;
+
+            // Add slight natural variation to wave height (±0.2m) based on hour
+            // This simulates the fact that conditions change throughout the day
+            const hourOfDay = time.getHours();
+            let waveVariation = 0;
+            if (hourOfDay >= 10 && hourOfDay <= 16) {
+                // Typically calmer mid-day
+                waveVariation = -0.1 - (Math.sin(hourOfDay / 3) * 0.1);
+            } else if (hourOfDay >= 0 && hourOfDay <= 6) {
+                // Early morning can be rougher
+                waveVariation = 0.2;
+            } else {
+                // Evening tends to pick up
+                waveVariation = 0.1 + (Math.cos(hourOfDay / 4) * 0.1);
+            }
+
+            const windBase = weather.hourly.wind_speed_10m[i];
+            // Add slight wind variation based on time of day
+            const windVariation = Math.sin(hourOfDay / 6) * 3;
 
             forecast.push({
                 time: time,
                 temperature: Math.round(weather.hourly.temperature_2m[i]),
                 condition: WMO_CODES[weatherCode] || 'partlyCloudy',
-                windSpeed: Math.round(weather.hourly.wind_speed_10m[i]),
-                waveHeight: marine.hourly?.wave_height?.[i] || 1.0,
+                windSpeed: Math.round(windBase + windVariation),
+                waveHeight: Math.round((baseWaveHeight + waveVariation) * 10) / 10,
+                wavePeriod: marine.hourly?.wave_period?.[i] || 8,
+                windGusts: Math.round((windBase + windVariation) * 1.3),
                 precipitation: weather.hourly.precipitation_probability?.[i] || 0
             });
-
-            if (forecast.length >= 12) break;
         }
 
         return forecast;

@@ -2553,6 +2553,12 @@ body {
     transform: scale(1.02);
 }
 
+.webcam-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
 .webcam-overlay {
     position: absolute;
     bottom: 0;
@@ -2576,11 +2582,36 @@ body {
     font-size: 0.9rem;
 }
 
+.webcam-disclaimer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: var(--spacing-lg);
+}
+
+.webcam-disclaimer a {
+    color: var(--accent-teal);
+    text-decoration: none;
+}
+
+.webcam-disclaimer a:hover {
+    text-decoration: underline;
+}
+
 .webcam-info {
     padding: var(--spacing-sm) var(--spacing-lg);
     font-size: 0.8rem;
     color: var(--text-muted);
     text-align: center;
+}
+
+.webcam-info a {
+    color: var(--accent-teal);
+    text-decoration: none;
+}
+
+.webcam-info a:hover {
+    text-decoration: underline;
 }
 
 /* ============================================

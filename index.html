@@ -173,7 +173,7 @@
     <section class="webcams-section" id="webcams">
         <div class="container">
             <h2 class="section-title">Live Harbour Views</h2>
-            <p class="section-subtitle">See current conditions at both terminals</p>
+            <p class="section-subtitle">See current conditions at both terminals via Windy.com</p>
             <div class="webcams-grid">
                 <div class="webcam-card">
                     <div class="webcam-header">
@@ -190,16 +190,16 @@
                         </span>
                     </div>
                     <div class="webcam-frame" id="webcamWellington">
-                        <img src="https://www.metservice.com/publicData/webCams/wellington/image.jpg"
-                             alt="Wellington Harbour Webcam"
-                             id="wellingtonCamImg"
-                             onerror="this.parentElement.innerHTML='<div class=\'webcam-unavailable\'>Webcam temporarily unavailable</div>'">
-                        <div class="webcam-overlay">
-                            <span class="webcam-time" id="wellingtonCamTime">--:--</span>
-                        </div>
+                        <iframe
+                            src="https://embed.windy.com/embed.html?type=webcam&id=1338293657&zoom=14&overlay=wind&menu=&message=true&marker=&calendar=&pressure=&type=webcam&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+                            frameborder="0"
+                            allowfullscreen
+                            title="Wellington Harbour Webcam"
+                            loading="lazy">
+                        </iframe>
                     </div>
                     <div class="webcam-info">
-                        <span>Refreshes every 10 minutes</span>
+                        <span>Powered by <a href="https://www.windy.com" target="_blank" rel="noopener">Windy.com</a></span>
                     </div>
                 </div>
                 <div class="webcam-card">
@@ -217,19 +217,20 @@
                         </span>
                     </div>
                     <div class="webcam-frame" id="webcamPicton">
-                        <img src="https://www.metservice.com/publicData/webCams/picton/image.jpg"
-                             alt="Picton Harbour Webcam"
-                             id="pictonCamImg"
-                             onerror="this.parentElement.innerHTML='<div class=\'webcam-unavailable\'>Webcam temporarily unavailable</div>'">
-                        <div class="webcam-overlay">
-                            <span class="webcam-time" id="pictonCamTime">--:--</span>
-                        </div>
+                        <iframe
+                            src="https://embed.windy.com/embed.html?type=webcam&id=1436320835&zoom=14&overlay=wind&menu=&message=true&marker=&calendar=&pressure=&type=webcam&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+                            frameborder="0"
+                            allowfullscreen
+                            title="Picton Harbour Webcam"
+                            loading="lazy">
+                        </iframe>
                     </div>
                     <div class="webcam-info">
-                        <span>Refreshes every 10 minutes</span>
+                        <span>Powered by <a href="https://www.windy.com" target="_blank" rel="noopener">Windy.com</a></span>
                     </div>
                 </div>
             </div>
+            <p class="webcam-disclaimer">Webcam feeds provided by Windy.com. If unavailable, check <a href="https://www.gw.govt.nz/environment/harbours-and-coasts/wellington-harbour-entrance-webcams-and-radio/" target="_blank" rel="noopener">Greater Wellington Regional Council</a> for Wellington or <a href="https://www.windy.com/webcams/1436320835" target="_blank" rel="noopener">Windy.com</a> for Picton.</p>
         </div>
     </section>
 
