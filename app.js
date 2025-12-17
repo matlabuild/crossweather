@@ -150,6 +150,43 @@ const COMFORT_DESCRIPTIONS = {
     1: 'Rough crossing expected'
 };
 
+// Historical seasonal averages for Cook Strait (based on NZ climate data)
+const SEASONAL_AVERAGES = {
+    summer: { // Dec-Feb
+        windSpeed: 22,
+        waveHeight: 1.2,
+        temperature: 18,
+        visibility: 25
+    },
+    autumn: { // Mar-May
+        windSpeed: 28,
+        waveHeight: 1.8,
+        temperature: 14,
+        visibility: 20
+    },
+    winter: { // Jun-Aug
+        windSpeed: 32,
+        waveHeight: 2.2,
+        temperature: 10,
+        visibility: 15
+    },
+    spring: { // Sep-Nov
+        windSpeed: 26,
+        waveHeight: 1.6,
+        temperature: 13,
+        visibility: 18
+    }
+};
+
+// Get current season for NZ (Southern Hemisphere)
+function getCurrentSeason() {
+    const month = new Date().getMonth();
+    if (month >= 11 || month <= 1) return 'summer';
+    if (month >= 2 && month <= 4) return 'autumn';
+    if (month >= 5 && month <= 7) return 'winter';
+    return 'spring';
+}
+
 // ============================================
 // Weather API Service (Real Data from Open-Meteo)
 // ============================================
@@ -534,18 +571,21 @@ class ComfortScoreCalculator {
 // ============================================
 
 class FerryScheduleManager {
-    constructor(hourlyForecast) {
+    constructor(hourlyForecast, dailyForecast) {
         this.hourlyForecast = hourlyForecast || [];
+        this.dailyForecast = dailyForecast || [];
     }
 
-    updateForecast(hourlyForecast) {
+    updateForecast(hourlyForecast, dailyForecast) {
         this.hourlyForecast = hourlyForecast;
+        this.dailyForecast = dailyForecast || this.dailyForecast;
     }
 
-    getAllSailings(direction = 'wellingtonToPicton', filter = 'all') {
+    getAllSailings(direction = 'wellingtonToPicton', filter = 'all', dayOffset = 0) {
         const sailings = [];
         const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        targetDate.setDate(targetDate.getDate() + dayOffset);
 
         for (const [operatorId, operator] of Object.entries(FERRY_SCHEDULES)) {
             if (filter !== 'all' && filter !== operatorId) continue;
@@ -553,11 +593,11 @@ class FerryScheduleManager {
             const schedule = operator[direction];
             for (const sailing of schedule) {
                 const [departHour, departMin] = sailing.depart.split(':').map(Number);
-                const departTime = new Date(today);
+                const departTime = new Date(targetDate);
                 departTime.setHours(departHour, departMin, 0, 0);
 
                 // If departure is past midnight (for late night sailings)
-                if (departHour < 4 && now.getHours() > 20) {
+                if (departHour < 4 && dayOffset === 0 && now.getHours() > 20) {
                     departTime.setDate(departTime.getDate() + 1);
                 }
 
@@ -568,13 +608,16 @@ class FerryScheduleManager {
                     arriveTime.setDate(arriveTime.getDate() + 1);
                 }
 
-                const weather = this.getWeatherForTime(departTime);
+                const weather = this.getWeatherForTime(departTime, dayOffset);
                 const comfortScore = ComfortScoreCalculator.calculate(
                     weather.waveHeight,
                     weather.wavePeriod || 8,
                     weather.windSpeed,
                     weather.windGusts || weather.windSpeed * 1.3
                 );
+
+                // Determine if sailing has departed (only matters for today)
+                const departed = dayOffset === 0 && departTime < now;
 
                 sailings.push({
                     operator: operatorId,
@@ -584,11 +627,12 @@ class FerryScheduleManager {
                     arriveTime,
                     departTimeStr: sailing.depart,
                     arriveTimeStr: sailing.arrive,
-                    departed: departTime < now,
+                    departed,
                     weather,
                     comfortScore,
                     comfortDesc: ComfortScoreCalculator.getDescription(comfortScore),
-                    comfortClass: ComfortScoreCalculator.getColorClass(comfortScore)
+                    comfortClass: ComfortScoreCalculator.getColorClass(comfortScore),
+                    direction
                 });
             }
         }
@@ -596,16 +640,29 @@ class FerryScheduleManager {
         // Sort by departure time
         sailings.sort((a, b) => a.departTime - b.departTime);
 
-        // Mark next departure
-        const nextIndex = sailings.findIndex(s => !s.departed);
-        if (nextIndex >= 0) {
-            sailings[nextIndex].isNext = true;
+        // Mark next departure (only for today)
+        if (dayOffset === 0) {
+            const nextIndex = sailings.findIndex(s => !s.departed);
+            if (nextIndex >= 0) {
+                sailings[nextIndex].isNext = true;
+            }
         }
 
         return sailings;
     }
 
-    getWeatherForTime(time) {
+    getWeatherForTime(time, dayOffset = 0) {
+        // For future days (beyond hourly forecast), use daily forecast
+        if (dayOffset > 0 && this.dailyForecast && this.dailyForecast.length > dayOffset) {
+            const daily = this.dailyForecast[dayOffset];
+            return {
+                temperature: daily.high || 15,
+                windSpeed: daily.windSpeed || 20,
+                waveHeight: daily.waveHeight || 1.5,
+                condition: daily.condition || 'partlyCloudy'
+            };
+        }
+
         if (!this.hourlyForecast || this.hourlyForecast.length === 0) {
             return { temperature: 15, windSpeed: 20, waveHeight: 1.5 };
         }
@@ -625,8 +682,8 @@ class FerryScheduleManager {
         return closest;
     }
 
-    getBestSailing(direction = 'wellingtonToPicton') {
-        const sailings = this.getAllSailings(direction).filter(s => !s.departed);
+    getBestSailing(direction = 'wellingtonToPicton', dayOffset = 0) {
+        const sailings = this.getAllSailings(direction, 'all', dayOffset).filter(s => !s.departed);
         if (sailings.length === 0) return null;
 
         return sailings.reduce((best, current) =>
@@ -634,8 +691,8 @@ class FerryScheduleManager {
         );
     }
 
-    getComparisonData(direction = 'wellingtonToPicton') {
-        const sailings = this.getAllSailings(direction).filter(s => !s.departed);
+    getComparisonData(direction = 'wellingtonToPicton', dayOffset = 0) {
+        const sailings = this.getAllSailings(direction, 'all', dayOffset).filter(s => !s.departed);
         const maxScore = 5;
 
         return sailings.map(s => ({
@@ -652,6 +709,28 @@ class FerryScheduleManager {
             waves: s.weather.waveHeight,
             isBest: false
         }));
+    }
+
+    // Get upcoming 7 days for day tabs
+    getWeekDays() {
+        const days = [];
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const now = new Date();
+
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(now);
+            date.setDate(date.getDate() + i);
+
+            days.push({
+                offset: i,
+                name: i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dayNames[date.getDay()]),
+                date: date.getDate(),
+                month: date.toLocaleDateString('en-NZ', { month: 'short' }),
+                fullDate: date
+            });
+        }
+
+        return days;
     }
 }
 
@@ -1182,7 +1261,15 @@ class UIController {
             ? sailings
             : sailings.filter(s => s.operator === filter);
 
-        const html = filteredSailings.map(sailing => `
+        const html = filteredSailings.map(sailing => {
+            // Determine port codes and names based on direction
+            const isWellingtonToPicton = sailing.direction === 'wellingtonToPicton';
+            const fromCode = isWellingtonToPicton ? 'WLG' : 'PCN';
+            const fromName = isWellingtonToPicton ? 'Wellington' : 'Picton';
+            const toCode = isWellingtonToPicton ? 'PCN' : 'WLG';
+            const toName = isWellingtonToPicton ? 'Picton' : 'Wellington';
+
+            return `
             <div class="sailing-card ${sailing.departed ? 'departed' : ''} ${sailing.isNext ? 'next-departure' : ''}">
                 <div class="sailing-header">
                     <div class="sailing-operator">
@@ -1202,8 +1289,8 @@ class UIController {
 
                 <div class="sailing-route">
                     <div class="route-port">
-                        <div class="port-code">WLG</div>
-                        <div class="port-name">Wellington</div>
+                        <div class="port-code">${fromCode}</div>
+                        <div class="port-name">${fromName}</div>
                     </div>
                     <div class="route-arrow">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1211,8 +1298,8 @@ class UIController {
                         </svg>
                     </div>
                     <div class="route-port" style="text-align: right;">
-                        <div class="port-code">PCN</div>
-                        <div class="port-name">Picton</div>
+                        <div class="port-code">${toCode}</div>
+                        <div class="port-name">${toName}</div>
                     </div>
                 </div>
 
@@ -1240,7 +1327,7 @@ class UIController {
                     <span class="comfort-text">${sailing.comfortDesc}</span>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
         this.elements.sailingsGrid.innerHTML = html;
     }
@@ -1306,6 +1393,212 @@ class UIController {
                 this.updateSailings(sailings, filter);
             });
         });
+    }
+
+    // Initialize day tabs
+    initDayTabs(weekDays, onDayChange) {
+        const container = document.getElementById('dayTabs');
+        if (!container) return;
+
+        const html = weekDays.map((day, index) => `
+            <button class="day-tab ${index === 0 ? 'active' : ''}" data-offset="${day.offset}">
+                <span class="day-tab-name">${day.name}</span>
+                <span class="day-tab-date">${day.date} ${day.month}</span>
+            </button>
+        `).join('');
+
+        container.innerHTML = html;
+
+        // Add click handlers
+        const tabs = container.querySelectorAll('.day-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const offset = parseInt(tab.dataset.offset, 10);
+                if (onDayChange) onDayChange(offset);
+            });
+        });
+    }
+
+    // Initialize direction toggle
+    initDirectionToggle(onDirectionChange) {
+        const buttons = document.querySelectorAll('.direction-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const direction = btn.dataset.direction;
+                if (onDirectionChange) onDirectionChange(direction);
+            });
+        });
+    }
+
+    // Update ferry animation direction on map
+    updateFerryDirection(direction) {
+        const ferryIcon = document.getElementById('ferryIcon');
+        if (ferryIcon) {
+            if (direction === 'pictonToWellington') {
+                ferryIcon.classList.add('reverse');
+            } else {
+                ferryIcon.classList.remove('reverse');
+            }
+        }
+    }
+
+    // Update historical context comparison
+    updateHistoricalContext(currentWeather) {
+        const container = document.getElementById('historicalGrid');
+        if (!container) return;
+
+        const season = getCurrentSeason();
+        const averages = SEASONAL_AVERAGES[season];
+
+        const comparisons = [
+            {
+                label: 'Wind Speed',
+                current: currentWeather.windSpeed,
+                average: averages.windSpeed,
+                unit: 'km/h',
+                higherIsBad: true
+            },
+            {
+                label: 'Wave Height',
+                current: currentWeather.waveHeight,
+                average: averages.waveHeight,
+                unit: 'm',
+                higherIsBad: true,
+                decimals: 1
+            },
+            {
+                label: 'Temperature',
+                current: currentWeather.temperature,
+                average: averages.temperature,
+                unit: '°C',
+                higherIsBad: false
+            },
+            {
+                label: 'Visibility',
+                current: currentWeather.visibility,
+                average: averages.visibility,
+                unit: 'km',
+                higherIsBad: false
+            }
+        ];
+
+        const html = comparisons.map(comp => {
+            const diff = comp.current - comp.average;
+            const absDiff = Math.abs(diff);
+            const diffStr = comp.decimals
+                ? absDiff.toFixed(comp.decimals)
+                : Math.round(absDiff);
+
+            let comparisonClass = 'same';
+            let comparisonText = 'Average';
+            let arrowSvg = '';
+
+            if (Math.abs(diff) > 0.5) {
+                if (diff > 0) {
+                    comparisonClass = comp.higherIsBad ? 'higher' : 'lower';
+                    comparisonText = `+${diffStr} ${comp.unit} above avg`;
+                    arrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>';
+                } else {
+                    comparisonClass = comp.higherIsBad ? 'lower' : 'higher';
+                    comparisonText = `-${diffStr} ${comp.unit} below avg`;
+                    arrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+                }
+            }
+
+            const currentValue = comp.decimals
+                ? comp.current.toFixed(comp.decimals)
+                : Math.round(comp.current);
+
+            const cardClass = comparisonClass === 'same' ? '' :
+                (comparisonClass === 'higher' && comp.higherIsBad) ||
+                (comparisonClass === 'lower' && !comp.higherIsBad) ? 'above-average' : 'below-average';
+
+            return `
+                <div class="historical-card ${cardClass}">
+                    <div class="historical-label">${comp.label}</div>
+                    <div class="historical-current">${currentValue}${comp.unit}</div>
+                    <div class="historical-comparison ${comparisonClass}">
+                        ${arrowSvg}
+                        <span>${comparisonText}</span>
+                    </div>
+                    <div class="historical-average">${season.charAt(0).toUpperCase() + season.slice(1)} avg: ${comp.decimals ? comp.average.toFixed(comp.decimals) : comp.average}${comp.unit}</div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = html;
+    }
+
+    // Update webcam timestamps
+    updateWebcamTimestamps() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-NZ', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const wellingtonTime = document.getElementById('wellingtonCamTime');
+        const pictonTime = document.getElementById('pictonCamTime');
+
+        if (wellingtonTime) wellingtonTime.textContent = timeStr;
+        if (pictonTime) pictonTime.textContent = timeStr;
+    }
+
+    // Refresh webcam images (add cache-busting query param)
+    refreshWebcamImages() {
+        const timestamp = Date.now();
+        const wellingtonImg = document.getElementById('wellingtonCamImg');
+        const pictonImg = document.getElementById('pictonCamImg');
+
+        if (wellingtonImg && wellingtonImg.src) {
+            const baseUrl = wellingtonImg.src.split('?')[0];
+            wellingtonImg.src = `${baseUrl}?t=${timestamp}`;
+        }
+
+        if (pictonImg && pictonImg.src) {
+            const baseUrl = pictonImg.src.split('?')[0];
+            pictonImg.src = `${baseUrl}?t=${timestamp}`;
+        }
+
+        this.updateWebcamTimestamps();
+    }
+
+    // Add wind indicator to map
+    updateWindIndicator(windSpeed, windDirection) {
+        const mapContainer = document.querySelector('.strait-map');
+        if (!mapContainer) return;
+
+        // Remove existing wind indicator
+        const existing = mapContainer.querySelector('.wind-indicator-group');
+        if (existing) existing.remove();
+
+        // Direction to degrees mapping
+        const directionDegrees = {
+            'N': 180, 'NE': 225, 'E': 270, 'SE': 315,
+            'S': 0, 'SW': 45, 'W': 90, 'NW': 135
+        };
+
+        const rotation = directionDegrees[windDirection] || 0;
+
+        // Create wind indicator SVG group
+        const windGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        windGroup.setAttribute('class', 'wind-indicator-group');
+        windGroup.setAttribute('transform', 'translate(320, 250)');
+
+        windGroup.innerHTML = `
+            <circle r="30" fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <g class="wind-arrow-indicator" transform="rotate(${rotation})">
+                <path d="M0,-20 L5,-5 L2,-5 L2,15 L-2,15 L-2,-5 L-5,-5 Z" fill="rgba(255,255,255,0.9)"/>
+            </g>
+            <text x="0" y="45" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">${windSpeed} km/h</text>
+            <text x="0" y="57" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">${windDirection}</text>
+        `;
+
+        mapContainer.appendChild(windGroup);
     }
 }
 
@@ -1376,6 +1669,10 @@ class CrossWeatherApp {
         this.retryCount = 0;
         this.maxRetries = 3;
         this.currentSailings = [];
+        this.currentDirection = 'wellingtonToPicton';
+        this.currentDayOffset = 0;
+        this.currentFilter = 'all';
+        this.weatherData = null;
     }
 
     async init() {
@@ -1393,11 +1690,31 @@ class CrossWeatherApp {
         // Initial data fetch
         await this.updateAllData();
 
+        // Initialize direction toggle
+        this.uiController.initDirectionToggle((direction) => {
+            this.currentDirection = direction;
+            this.updateSailingsDisplay();
+            this.uiController.updateFerryDirection(direction);
+        });
+
+        // Initialize day tabs
+        const weekDays = this.ferryManager.getWeekDays();
+        this.uiController.initDayTabs(weekDays, (dayOffset) => {
+            this.currentDayOffset = dayOffset;
+            this.updateSailingsDisplay();
+        });
+
+        // Initialize webcam timestamps
+        this.uiController.updateWebcamTimestamps();
+
         // Set up periodic updates (every 5 minutes)
         setInterval(() => this.updateAllData(), CONFIG.updateInterval);
 
         // Update "last updated" text every 30 seconds
         setInterval(() => this.updateLastUpdatedText(), 30000);
+
+        // Refresh webcams every 10 minutes
+        setInterval(() => this.uiController.refreshWebcamImages(), 600000);
 
         console.log('CrossWeather App initialized with live data');
     }
@@ -1405,6 +1722,7 @@ class CrossWeatherApp {
     async updateAllData() {
         try {
             const data = await this.weatherAPI.getAllData();
+            this.weatherData = data;
 
             // Update basic weather UI
             this.uiController.updateCurrentWeather(data.current);
@@ -1421,23 +1739,25 @@ class CrossWeatherApp {
             const comfortDesc = ComfortScoreCalculator.getDescription(comfortScore);
             this.uiController.updateComfortScore(comfortScore, comfortDesc);
 
-            // Update ferry schedule manager with hourly forecast
-            this.ferryManager.updateForecast(data.hourly);
+            // Update ferry schedule manager with hourly and daily forecasts
+            this.ferryManager.updateForecast(data.hourly, data.daily);
 
-            // Get sailings and update UI
-            this.currentSailings = this.ferryManager.getAllSailings();
-            this.uiController.updateSailings(this.currentSailings);
-            this.uiController.initSailingTabs(this.currentSailings);
+            // Update sailings display
+            this.updateSailingsDisplay();
 
-            // Update comparison chart
-            const comparisonData = this.ferryManager.getComparisonData();
-            const bestSailing = this.ferryManager.getBestSailing();
-            this.uiController.updateComparison(comparisonData, bestSailing);
+            // Initialize operator tabs
+            this.initOperatorTabs();
 
             // Fetch and merge MetService warnings with local alerts
             const metServiceWarnings = await MetServiceWarnings.fetchWarnings(data.current);
             const allAlerts = [...metServiceWarnings, ...data.alerts];
             this.uiController.updateAlerts(allAlerts);
+
+            // Update historical context
+            this.uiController.updateHistoricalContext(data.current);
+
+            // Update wind indicator on map
+            this.uiController.updateWindIndicator(data.current.windSpeed, data.current.windDirection);
 
             this.lastUpdate = Date.now();
             this.retryCount = 0;
@@ -1454,6 +1774,48 @@ class CrossWeatherApp {
                 this.uiController.showError('Please check your internet connection and refresh the page');
             }
         }
+    }
+
+    updateSailingsDisplay() {
+        // Get sailings for current direction and day
+        this.currentSailings = this.ferryManager.getAllSailings(
+            this.currentDirection,
+            this.currentFilter,
+            this.currentDayOffset
+        );
+
+        // Update sailings grid
+        this.uiController.updateSailings(this.currentSailings, this.currentFilter);
+
+        // Update comparison chart
+        const comparisonData = this.ferryManager.getComparisonData(
+            this.currentDirection,
+            this.currentDayOffset
+        );
+        const bestSailing = this.ferryManager.getBestSailing(
+            this.currentDirection,
+            this.currentDayOffset
+        );
+        this.uiController.updateComparison(comparisonData, bestSailing);
+    }
+
+    initOperatorTabs() {
+        const tabs = document.querySelectorAll('.sailing-tab');
+        tabs.forEach(tab => {
+            // Remove existing listeners by cloning
+            const newTab = tab.cloneNode(true);
+            tab.parentNode.replaceChild(newTab, tab);
+        });
+
+        // Add fresh listeners
+        document.querySelectorAll('.sailing-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.sailing-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                this.currentFilter = tab.dataset.operator;
+                this.updateSailingsDisplay();
+            });
+        });
     }
 
     updateLastUpdatedText() {

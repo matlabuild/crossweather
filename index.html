@@ -131,14 +131,115 @@
     <!-- Ferry Sailings Section -->
     <section class="sailings-section" id="sailings">
         <div class="container">
-            <h2 class="section-title">Today's Sailings</h2>
+            <h2 class="section-title">Ferry Sailings</h2>
+
+            <!-- Direction Toggle -->
+            <div class="direction-toggle" id="directionToggle">
+                <button class="direction-btn active" data-direction="wellingtonToPicton">
+                    <span class="direction-from">Wellington</span>
+                    <svg class="direction-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                    <span class="direction-to">Picton</span>
+                </button>
+                <button class="direction-btn" data-direction="pictonToWellington">
+                    <span class="direction-from">Picton</span>
+                    <svg class="direction-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                    <span class="direction-to">Wellington</span>
+                </button>
+            </div>
+
+            <!-- Day Tabs -->
+            <div class="day-tabs" id="dayTabs">
+                <!-- Days will be inserted by JavaScript -->
+            </div>
+
+            <!-- Operator Filter -->
             <div class="sailings-tabs">
                 <button class="sailing-tab active" data-operator="all">All Ferries</button>
                 <button class="sailing-tab" data-operator="interislander">Interislander</button>
                 <button class="sailing-tab" data-operator="bluebridge">Bluebridge</button>
             </div>
+
             <div class="sailings-grid" id="sailingsGrid">
                 <!-- Sailings will be inserted by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Webcams Section -->
+    <section class="webcams-section" id="webcams">
+        <div class="container">
+            <h2 class="section-title">Live Harbour Views</h2>
+            <p class="section-subtitle">See current conditions at both terminals</p>
+            <div class="webcams-grid">
+                <div class="webcam-card">
+                    <div class="webcam-header">
+                        <div class="webcam-location">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            Wellington Harbour
+                        </div>
+                        <span class="webcam-live-badge">
+                            <span class="live-dot"></span>
+                            LIVE
+                        </span>
+                    </div>
+                    <div class="webcam-frame" id="webcamWellington">
+                        <img src="https://www.metservice.com/publicData/webCams/wellington/image.jpg"
+                             alt="Wellington Harbour Webcam"
+                             id="wellingtonCamImg"
+                             onerror="this.parentElement.innerHTML='<div class=\'webcam-unavailable\'>Webcam temporarily unavailable</div>'">
+                        <div class="webcam-overlay">
+                            <span class="webcam-time" id="wellingtonCamTime">--:--</span>
+                        </div>
+                    </div>
+                    <div class="webcam-info">
+                        <span>Refreshes every 10 minutes</span>
+                    </div>
+                </div>
+                <div class="webcam-card">
+                    <div class="webcam-header">
+                        <div class="webcam-location">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            Picton Harbour
+                        </div>
+                        <span class="webcam-live-badge">
+                            <span class="live-dot"></span>
+                            LIVE
+                        </span>
+                    </div>
+                    <div class="webcam-frame" id="webcamPicton">
+                        <img src="https://www.metservice.com/publicData/webCams/picton/image.jpg"
+                             alt="Picton Harbour Webcam"
+                             id="pictonCamImg"
+                             onerror="this.parentElement.innerHTML='<div class=\'webcam-unavailable\'>Webcam temporarily unavailable</div>'">
+                        <div class="webcam-overlay">
+                            <span class="webcam-time" id="pictonCamTime">--:--</span>
+                        </div>
+                    </div>
+                    <div class="webcam-info">
+                        <span>Refreshes every 10 minutes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Historical Context Section -->
+    <section class="historical-section" id="historical">
+        <div class="container">
+            <h2 class="section-title">Conditions vs Typical</h2>
+            <p class="section-subtitle">How today compares to the seasonal average</p>
+            <div class="historical-grid" id="historicalGrid">
+                <!-- Historical comparisons will be inserted by JavaScript -->
             </div>
         </div>
     </section>

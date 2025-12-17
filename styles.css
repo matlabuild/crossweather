@@ -2353,3 +2353,399 @@ body {
         font-size: 0.9rem;
     }
 }
+
+/* ============================================
+   Direction Toggle
+   ============================================ */
+
+.direction-toggle {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.direction-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: var(--glass-bg);
+    border: 2px solid var(--card-border);
+    border-radius: var(--radius-xl);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-medium);
+}
+
+.direction-btn:hover {
+    background: var(--card-bg);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--text-primary);
+}
+
+.direction-btn.active {
+    background: linear-gradient(135deg, rgba(78, 205, 196, 0.3), rgba(78, 205, 196, 0.1));
+    border-color: var(--accent-teal);
+    color: var(--text-primary);
+}
+
+.direction-arrow {
+    width: 20px;
+    height: 20px;
+    color: var(--accent-teal);
+}
+
+.direction-from {
+    font-weight: 600;
+}
+
+.direction-to {
+    font-weight: 600;
+}
+
+/* ============================================
+   Day Tabs
+   ============================================ */
+
+.day-tabs {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-lg);
+    overflow-x: auto;
+    padding: var(--spacing-xs);
+}
+
+.day-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--glass-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    min-width: 70px;
+}
+
+.day-tab:hover {
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.day-tab.active {
+    background: var(--accent-teal);
+    border-color: var(--accent-teal);
+    color: var(--ocean-dark);
+}
+
+.day-tab-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.day-tab-date {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+/* ============================================
+   Live Webcams Section
+   ============================================ */
+
+.webcams-section {
+    padding: var(--spacing-3xl) 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.15) 100%);
+}
+
+.webcams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--spacing-xl);
+}
+
+.webcam-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: var(--transition-medium);
+}
+
+.webcam-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.webcam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.webcam-location {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.webcam-location svg {
+    width: 18px;
+    height: 18px;
+    color: var(--accent-teal);
+}
+
+.webcam-live-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--status-poor);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--status-poor);
+    border-radius: 50%;
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+.webcam-frame {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.webcam-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition-medium);
+}
+
+.webcam-frame:hover img {
+    transform: scale(1.02);
+}
+
+.webcam-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--spacing-md);
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+}
+
+.webcam-time {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.webcam-unavailable {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.webcam-info {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* ============================================
+   Historical Context Section
+   ============================================ */
+
+.historical-section {
+    padding: var(--spacing-3xl) 0;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.historical-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.historical-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: var(--transition-medium);
+}
+
+.historical-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.historical-card.above-average {
+    border-color: var(--status-poor);
+}
+
+.historical-card.below-average {
+    border-color: var(--status-good);
+}
+
+.historical-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-sm);
+}
+
+.historical-current {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+}
+
+.historical-comparison {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    font-size: 0.9rem;
+}
+
+.historical-comparison.higher {
+    color: var(--status-poor);
+}
+
+.historical-comparison.lower {
+    color: var(--status-good);
+}
+
+.historical-comparison.same {
+    color: var(--text-muted);
+}
+
+.historical-comparison svg {
+    width: 16px;
+    height: 16px;
+}
+
+.historical-average {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: var(--spacing-sm);
+}
+
+/* ============================================
+   Wind Visualization on Map
+   ============================================ */
+
+.wind-arrow-indicator {
+    transform-origin: center center;
+    transition: transform 0.5s ease;
+}
+
+.wind-indicator-group text {
+    fill: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+/* ============================================
+   Ferry Direction Animation
+   ============================================ */
+
+.ferry-icon.reverse {
+    animation: ferryMoveReverse 8s ease-in-out infinite;
+}
+
+@keyframes ferryMoveReverse {
+    0% {
+        transform: translate(200px, 405px) rotate(180deg);
+    }
+    25% {
+        transform: translate(210px, 360px) rotate(175deg);
+    }
+    50% {
+        transform: translate(220px, 280px) rotate(183deg);
+    }
+    75% {
+        transform: translate(200px, 200px) rotate(176deg);
+    }
+    100% {
+        transform: translate(180px, 95px) rotate(180deg);
+    }
+}
+
+/* ============================================
+   Responsive Updates for New Sections
+   ============================================ */
+
+@media (max-width: 768px) {
+    .direction-toggle {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .direction-btn {
+        justify-content: center;
+    }
+
+    .day-tabs {
+        justify-content: flex-start;
+    }
+
+    .webcams-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .historical-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .webcams-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .historical-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .day-tab {
+        min-width: 55px;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .day-tab-name {
+        font-size: 0.75rem;
+    }
+}
