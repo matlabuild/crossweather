@@ -2618,8 +2618,9 @@ body {
 
 .webcam-frame iframe {
     width: 100%;
-    height: 100%;
+    height: 140%; /* Make taller to crop out Windy's "About location" footer */
     border: none;
+    margin-top: -5%; /* Shift up slightly to center the map better */
 }
 
 .webcam-overlay {
