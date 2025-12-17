@@ -1317,6 +1317,12 @@ class UIController {
     updateNextSailing(sailing) {
         if (!sailing || !this.elements.nextSailingCard) return;
 
+        // Check if sailing is tomorrow
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const sailingDate = new Date(sailing.departTime.getFullYear(), sailing.departTime.getMonth(), sailing.departTime.getDate());
+        const isTomorrow = sailingDate.getTime() > today.getTime();
+
         // Update operator badge
         if (this.elements.nextOperator) {
             const badge = this.elements.nextOperator.querySelector('.operator-badge');
@@ -1333,7 +1339,9 @@ class UIController {
             this.elements.nextVessel.textContent = sailing.vessel;
         }
         if (this.elements.nextDepartTime) {
-            this.elements.nextDepartTime.textContent = sailing.departTimeStr;
+            // Show "Tomorrow" prefix if sailing is not today
+            const timeStr = isTomorrow ? `Tomorrow ${sailing.departTimeStr}` : sailing.departTimeStr;
+            this.elements.nextDepartTime.textContent = timeStr;
         }
         if (this.elements.nextBookBtn && sailing.bookingUrl) {
             this.elements.nextBookBtn.href = sailing.bookingUrl;
@@ -1378,13 +1386,20 @@ class UIController {
     updateRecommendation(bestSailing) {
         if (!bestSailing || !this.elements.recommendationText) return;
 
+        // Check if sailing is tomorrow
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const sailingDate = new Date(bestSailing.departTime.getFullYear(), bestSailing.departTime.getMonth(), bestSailing.departTime.getDate());
+        const isTomorrow = sailingDate.getTime() > today.getTime();
+
         const timeStr = bestSailing.departTime.toLocaleTimeString('en-NZ', {
             hour: 'numeric',
             minute: '2-digit',
             hour12: true
         });
 
-        this.elements.recommendationText.innerHTML = `Best crossing today: <strong>${timeStr}</strong> (calmest conditions forecast)`;
+        const dayLabel = isTomorrow ? 'tomorrow' : 'today';
+        this.elements.recommendationText.innerHTML = `Best crossing ${dayLabel}: <strong>${timeStr}</strong> (calmest conditions forecast)`;
     }
 
     updateHourlyForecast(forecast) {
@@ -2112,15 +2127,27 @@ class CrossWeatherApp {
             this.ferryManager.updateForecast(data.hourly, data.daily);
 
             // Get sailings and update next sailing card
-            const sailings = this.ferryManager.getAllSailings(this.currentDirection, 0);
-            const nextSailing = sailings.find(s => !s.departed);
+            // Look at today first, then tomorrow if no sailings remain
+            let sailings = this.ferryManager.getAllSailings(this.currentDirection, 'all', 0);
+            let nextSailing = sailings.find(s => !s.departed);
+
+            // If no sailings left today, look at tomorrow
+            if (!nextSailing) {
+                const tomorrowSailings = this.ferryManager.getAllSailings(this.currentDirection, 'all', 1);
+                nextSailing = tomorrowSailings.find(s => !s.departed);
+                // Combine for best sailing search
+                sailings = [...sailings, ...tomorrowSailings];
+            }
+
             if (nextSailing) {
                 this.uiController.updateNextSailing(nextSailing);
             }
 
-            // Find best sailing for recommendation
-            const bestSailing = sailings.filter(s => !s.departed)
-                .sort((a, b) => b.comfortScore - a.comfortScore)[0];
+            // Find best sailing for recommendation (from remaining sailings today + tomorrow)
+            const availableSailings = sailings.filter(s => !s.departed);
+            const bestSailing = availableSailings.length > 0
+                ? availableSailings.sort((a, b) => b.comfortScore - a.comfortScore)[0]
+                : null;
             if (bestSailing) {
                 this.uiController.updateRecommendation(bestSailing);
             }
