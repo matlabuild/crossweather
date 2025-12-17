@@ -1828,3 +1828,528 @@ body {
         opacity: 1;
     }
 }
+
+/* ============================================
+   Comfort Score Widget
+   ============================================ */
+
+.comfort-score-widget {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--card-border);
+}
+
+.comfort-score-ring {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.comfort-score-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.comfort-score-ring .score-fill {
+    transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+}
+
+.score-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.score-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.score-max {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.comfort-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.comfort-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-xs);
+}
+
+.comfort-desc {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Score color variations */
+.comfort-score-ring.score-5 .score-fill { stroke: #4ecdc4; }
+.comfort-score-ring.score-4 .score-fill { stroke: #7dd87d; }
+.comfort-score-ring.score-3 .score-fill { stroke: #feca57; }
+.comfort-score-ring.score-2 .score-fill { stroke: #ff9f43; }
+.comfort-score-ring.score-1 .score-fill { stroke: #ff6b6b; }
+
+/* ============================================
+   Ferry Sailings Section
+   ============================================ */
+
+.sailings-section {
+    padding: var(--spacing-3xl) 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, transparent 100%);
+}
+
+.sailings-tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xl);
+    justify-content: center;
+}
+
+.sailing-tab {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--glass-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-xl);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.sailing-tab:hover {
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.sailing-tab.active {
+    background: var(--accent-teal);
+    border-color: var(--accent-teal);
+    color: var(--ocean-dark);
+}
+
+.sailings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.sailing-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    transition: var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.sailing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.sailing-card.departed {
+    opacity: 0.5;
+}
+
+.sailing-card.next-departure {
+    border-color: var(--accent-teal);
+    box-shadow: var(--shadow-glow);
+}
+
+.sailing-card.next-departure::before {
+    content: 'Next Departure';
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--accent-teal);
+    color: var(--ocean-dark);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 0 var(--radius-lg) 0 var(--radius-sm);
+}
+
+.sailing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+}
+
+.sailing-operator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.operator-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.operator-logo.interislander {
+    background: linear-gradient(135deg, #e31837, #c41230);
+    color: white;
+}
+
+.operator-logo.bluebridge {
+    background: linear-gradient(135deg, #0066b3, #004d8c);
+    color: white;
+}
+
+.operator-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.vessel-name {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.sailing-time {
+    text-align: right;
+}
+
+.departure-time {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.arrival-time {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.sailing-route {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-md) 0;
+    border-top: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.route-port {
+    flex: 1;
+}
+
+.port-code {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.port-name {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.route-arrow {
+    color: var(--text-muted);
+}
+
+.route-arrow svg {
+    width: 24px;
+    height: 24px;
+}
+
+.sailing-weather {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.weather-stat {
+    text-align: center;
+}
+
+.weather-stat-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.weather-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.sailing-comfort {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+}
+
+.comfort-meter {
+    display: flex;
+    gap: 4px;
+}
+
+.comfort-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.comfort-dot.filled {
+    background: var(--status-good);
+}
+
+.comfort-dot.filled.moderate {
+    background: var(--status-moderate);
+}
+
+.comfort-dot.filled.poor {
+    background: var(--status-poor);
+}
+
+.comfort-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* ============================================
+   Crossing Comparison Section
+   ============================================ */
+
+.comparison-section {
+    padding: var(--spacing-3xl) 0;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-top: calc(var(--spacing-md) * -1);
+    margin-bottom: var(--spacing-xl);
+}
+
+.comparison-chart {
+    display: grid;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.comparison-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 80px;
+    align-items: center;
+    gap: var(--spacing-md);
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    transition: var(--transition-medium);
+}
+
+.comparison-row:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.comparison-row.best {
+    border-color: var(--accent-teal);
+    background: linear-gradient(135deg, rgba(78, 205, 196, 0.15), rgba(78, 205, 196, 0.05));
+}
+
+.comparison-row.best::after {
+    content: '★ Best';
+    position: absolute;
+    right: var(--spacing-lg);
+    font-size: 0.75rem;
+    color: var(--accent-teal);
+    font-weight: 600;
+}
+
+.comparison-time {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.comparison-time span {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.comparison-bar-container {
+    position: relative;
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.comparison-bar {
+    height: 24px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, var(--status-good), var(--status-moderate));
+    transition: width 0.8s ease;
+    position: relative;
+    min-width: 30px;
+}
+
+.comparison-bar.good {
+    background: linear-gradient(90deg, var(--status-good), #7dd87d);
+}
+
+.comparison-bar.moderate {
+    background: linear-gradient(90deg, var(--status-moderate), #ffb347);
+}
+
+.comparison-bar.poor {
+    background: linear-gradient(90deg, var(--status-poor), #ff8a80);
+}
+
+.comparison-details {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: var(--spacing-md);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding-right: var(--spacing-sm);
+}
+
+.comparison-score {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.comparison-recommendation {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(78, 205, 196, 0.1));
+    border: 1px solid var(--accent-teal);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.recommendation-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-teal);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.recommendation-icon svg {
+    width: 28px;
+    height: 28px;
+    color: var(--ocean-dark);
+}
+
+.recommendation-text {
+    font-size: 1rem;
+}
+
+.recommendation-text strong {
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.recommendation-text span {
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   MetService Alert Styling
+   ============================================ */
+
+.alert-item.metservice {
+    border-left-color: #1a5276;
+    background: linear-gradient(135deg, rgba(26, 82, 118, 0.2), rgba(26, 82, 118, 0.1));
+}
+
+.alert-item.metservice .alert-icon svg {
+    color: #5dade2;
+}
+
+.alert-source {
+    display: inline-block;
+    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: var(--spacing-sm);
+    color: var(--text-muted);
+}
+
+/* ============================================
+   Responsive Updates for New Sections
+   ============================================ */
+
+@media (max-width: 768px) {
+    .comfort-score-widget {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .sailings-tabs {
+        flex-wrap: wrap;
+    }
+
+    .sailings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .comparison-row {
+        grid-template-columns: 80px 1fr 60px;
+    }
+
+    .comparison-details {
+        display: none;
+    }
+
+    .comparison-recommendation {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .sailing-weather {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .comparison-row {
+        grid-template-columns: 70px 1fr 50px;
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .comparison-time {
+        font-size: 0.9rem;
+    }
+}

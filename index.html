@@ -36,8 +36,9 @@
             </div>
             <nav class="nav">
                 <a href="#current" class="nav-link active">Current</a>
+                <a href="#sailings" class="nav-link">Sailings</a>
+                <a href="#comparison" class="nav-link">Compare</a>
                 <a href="#forecast" class="nav-link">Forecast</a>
-                <a href="#route" class="nav-link">Route</a>
                 <a href="#alerts" class="nav-link">Alerts</a>
             </nav>
             <div class="last-updated">
@@ -97,7 +98,7 @@
         </div>
     </section>
 
-    <!-- Crossing Status Banner -->
+    <!-- Crossing Status Banner with Comfort Score -->
     <section class="status-banner" id="statusBanner">
         <div class="status-content">
             <div class="status-indicator good">
@@ -105,6 +106,63 @@
                 <span class="status-text">Good Crossing Conditions</span>
             </div>
             <p class="status-detail">Moderate seas expected. Standard crossing time of 3 hours 20 minutes.</p>
+
+            <!-- Comfort Score -->
+            <div class="comfort-score-widget">
+                <div class="comfort-score-ring" id="comfortScoreRing">
+                    <svg viewBox="0 0 100 100">
+                        <circle class="score-bg" cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                        <circle class="score-fill" cx="50" cy="50" r="45" fill="none" stroke="#4ecdc4" stroke-width="8"
+                            stroke-dasharray="283" stroke-dashoffset="57" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+                    </svg>
+                    <div class="score-value">
+                        <span class="score-number" id="comfortScore">4</span>
+                        <span class="score-max">/5</span>
+                    </div>
+                </div>
+                <div class="comfort-info">
+                    <span class="comfort-label">Comfort Score</span>
+                    <span class="comfort-desc" id="comfortDesc">Smooth sailing expected</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ferry Sailings Section -->
+    <section class="sailings-section" id="sailings">
+        <div class="container">
+            <h2 class="section-title">Today's Sailings</h2>
+            <div class="sailings-tabs">
+                <button class="sailing-tab active" data-operator="all">All Ferries</button>
+                <button class="sailing-tab" data-operator="interislander">Interislander</button>
+                <button class="sailing-tab" data-operator="bluebridge">Bluebridge</button>
+            </div>
+            <div class="sailings-grid" id="sailingsGrid">
+                <!-- Sailings will be inserted by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Crossing Comparison Section -->
+    <section class="comparison-section" id="comparison">
+        <div class="container">
+            <h2 class="section-title">Best Time to Cross</h2>
+            <p class="section-subtitle">Compare conditions across different departure times</p>
+            <div class="comparison-chart" id="comparisonChart">
+                <!-- Comparison bars will be inserted by JavaScript -->
+            </div>
+            <div class="comparison-recommendation" id="comparisonRecommendation">
+                <div class="recommendation-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <path d="M22 4L12 14.01l-3-3"/>
+                    </svg>
+                </div>
+                <div class="recommendation-text">
+                    <strong id="bestTimeText">The 2:00 PM sailing</strong>
+                    <span id="bestTimeReason">offers the calmest conditions today</span>
+                </div>
+            </div>
         </div>
     </section>
 
